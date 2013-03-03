@@ -180,7 +180,7 @@ module Assam
     # in hex. For debugging purposes.
     def dump_registers
       registers.each do |name, register|
-        puts "#{name.to_s.rjust(5)}: " +
+        puts "#{name.to_s.rjust(6)}: " +
           "0x#{register.value.to_s(16).rjust(register.size, "0")} " +
           "(#{register.value})"
       end

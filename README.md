@@ -54,12 +54,13 @@ processor = Assam::Processor.new
 
 # Create a program for the processor.
 prog = Assam::Program.new(processor) do
-  mov 3, @eax
-  mov 5, @ebx
+  mov 3, @ebx
+  mov 5, @ecx
 
-  add 8, @eax
+  add 8, @ebx
 
-  stop
+  mov 1, @eax
+  int 0x80
 end
 
 # Assemble the program into machine code that the processor can understand.
@@ -73,14 +74,15 @@ processor.load(binary).run
 # Dump the state of the registers after the code has run.
 processor.dump_registers
 
-# Result of dump_registers:
-#  eax: 0x000b (11)
-#  ebx: 0x0005 (5)
-#  ecx: 0x0000 (0)
-#  edx: 0x0000 (0)
-#  esp: 0xffff (65535)
-#  ebp: 0x0000 (0)
-#  esi: 0x0000 (0)
-#  edi: 0x0000 (0)
-#   pc: 0x1013 (4115)
+# Result of dumping registers:
+#    eax: 0x0001 (1)
+#    ebx: 0x000b (11)
+#    ecx: 0x0005 (5)
+#    edx: 0x0000 (0)
+#    esp: 0x10000 (65536)
+#    ebp: 0x0000 (0)
+#    esi: 0x0000 (0)
+#    edi: 0x0000 (0)
+#     pc: 0x101b (4123)
+# eflags: 0x0000 (0)
 ```
