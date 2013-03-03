@@ -43,3 +43,44 @@ poke around then feel free.
 
 The specs and samples are probably the best places to start. They'll give you an
 idea of how to run Assam's assembler and whatnot.
+
+## Sample Assam processor and program
+
+``` ruby
+require File.join('.', File.dirname(__FILE__), '..', 'lib', 'assam')
+
+# Initialise a processor object.
+processor = Assam::Processor.new
+
+# Create a program for the processor.
+prog = Assam::Program.new(processor) do
+  mov 3, @eax
+  mov 5, @ebx
+
+  add 8, @eax
+
+  stop
+end
+
+# Assemble the program into machine code that the processor can understand.
+binary = Assam::Assembler.new(processor, prog).assemble
+
+# Load the binary machine code into the processor's memory. It will
+# automatically be loaded into where code is supposed to start. Then run the
+# code.
+processor.load(binary).run
+
+# Dump the state of the registers after the code has run.
+processor.dump_registers
+
+# Result of dump_registers:
+#  eax: 0x000b (11)
+#  ebx: 0x0005 (5)
+#  ecx: 0x0000 (0)
+#  edx: 0x0000 (0)
+#  esp: 0xffff (65535)
+#  ebp: 0x0000 (0)
+#  esi: 0x0000 (0)
+#  edi: 0x0000 (0)
+#   pc: 0x1013 (4115)
+```

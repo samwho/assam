@@ -40,6 +40,12 @@ module Assam
       @code_start ||= 0x1000
     end
 
+    # The point in memory where the stack starts. Typically this is always at
+    # the top and grows down.
+    def stack_start
+      @stack_start ||= ram.size - 1
+    end
+
     # The registers hash! I've gone for an x86 inspired register set. It's not
     # complete but it doesn't need to be yet, and it's easy enough to extend
     # should one be so inclined.
@@ -100,6 +106,9 @@ module Assam
     def run
       # Set the program counter to the point in memory where code begins.
       registers[:pc].value = code_start
+
+      # Set the stack pointer to the point in memory where the stack starts.
+      registers[:esp].value = stack_start
 
       loop do
         opcode      = ram_read

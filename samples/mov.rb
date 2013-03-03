@@ -6,6 +6,9 @@ processor = Assam::Processor.new
 # Create a program for the processor.
 prog = Assam::Program.new(processor) do
   mov 3, @eax
+  mov 5, @ebx
+
+  add 8, @eax
 
   stop
 end

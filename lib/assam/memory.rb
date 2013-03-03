@@ -19,11 +19,12 @@ module Assam
   #   mem.load(0x21, 1) #=> 0xFF (255)
   #   mem.load(0x22, 1) #=> 0
   class Memory
-    attr_accessor :name
+    attr_accessor :name, :size
 
-    def initialize bytes, name = "Unnamed"
-      @memory = Array.new(bytes, 0).pack("C*").force_encoding(Encoding::BINARY)
+    def initialize size, name = "Unnamed"
+      @memory = Array.new(size, 0).pack("C*").force_encoding(Encoding::BINARY)
       @name = name
+      @size = size
     end
 
     def load position, size
