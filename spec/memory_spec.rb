@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Bpred::Memory do
-  let(:memory) { Bpred::Memory.new(0xFF) }
+describe Assam::Memory do
+  let(:memory) { Assam::Memory.new(0xFF) }
 
   describe "Storing and loading" do
     before do

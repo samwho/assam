@@ -1,12 +1,13 @@
-module Bpred
+module Assam
   class Program
     attr_accessor :instructions
 
-    def initialize opts = {}, &block
+    def initialize processor, opts = {}, &block
       @opts = opts
+      @processor = processor
 
       # Initialise instance variables as registers.
-      Processor::REGISTERS.each do |name, register|
+      processor.registers.each do |name, register|
         instance_variable_set "@#{name}".to_sym, register
       end
 
@@ -21,7 +22,6 @@ module Bpred
     # are in order, which will allow us to jump around the program later on (for
     # branches and whatnot).
     def method_missing name, *args
-      puts "Instruction: #{name}, args: #{args.join(', ')}"
       @instructions << [name, *args]
     end
   end

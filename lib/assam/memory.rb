@@ -1,4 +1,4 @@
-module Bpred
+module Assam
   # Class for representing RAM in a virtual system. Stores bytes in a big endian
   # fashion (because little endian is a little more difficult to deal with in my
   # personal opinion).
@@ -6,7 +6,7 @@ module Bpred
   # Examples:
   #
   #   # Allocate 256 bytes of ram.
-  #   mem = Bpred::Memory.new(256)
+  #   mem = Assam::Memory.new(256)
   #
   #   # Store some values in memory
   #   mem.store 0x10, 1, 0xFF
@@ -19,8 +19,11 @@ module Bpred
   #   mem.load(0x21, 1) #=> 0xFF (255)
   #   mem.load(0x22, 1) #=> 0
   class Memory
-    def initialize bytes
+    attr_accessor :name
+
+    def initialize bytes, name = "Unnamed"
       @memory = Array.new(bytes, 0).pack("C*").force_encoding(Encoding::BINARY)
+      @name = name
     end
 
     def load position, size

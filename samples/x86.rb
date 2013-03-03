@@ -1,28 +1,15 @@
-require File.join('.', File.dirname(__FILE__), '..', 'lib', 'bpred')
+require File.join('.', File.dirname(__FILE__), '..', 'lib', 'assam')
 require 'pp'
 
-# prog = Bpred::ISA::X86.new do
-#   xor @eax, @eax
-#   add 10, @eax
+processor = Assam::Processor.new
 
-#   cmp @eax, 0
-
-#   jne :exit
-
-#   mov 3, @ebx
-
-# label :exit
-
-#   mov 1, @eax
-# end
-
-prog = Bpred::Program.new do
+prog = Assam::Program.new do
   mov 3, @eax
 
   stop
 end
 
-binary = Bpred::Assembler.new(prog).assemble
+binary = Assam::Assembler.new(prog).assemble
 
-Bpred::Processor.load(binary).run
-Bpred::Processor.dump_registers
+processor.load(binary).run
+processor.dump_registers

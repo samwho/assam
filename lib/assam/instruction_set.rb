@@ -1,4 +1,4 @@
-module Bpred
+module Assam
   class InstructionSet
     INSTRUCTIONS      = {}
     INSTRUCTION_CODES = {}
@@ -19,20 +19,22 @@ module Bpred
     end
 
     instruction :mov, opcode: 0x02, args: 2, argsize: 2 do |src, dest|
-      if src.is_a? Register
-        if dest.is_a? Register
-          dest.value = src.value
-        elsif dest.is_a? Array
-          Processor::RAM[dest, 2] = src.value
-        end
-      elsif src.is_a? Fixnum
-        if dest.is_a? Register
-          dest.value = src.to_i
-        elsif dest.is_a? Array
-          Processor::RAM[dest, 2] = src.to_i
-        end
+      if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
+        dest.write(src.read)
+      elsif src.is_a? Fixnum and dest.is_a? MemoryLocation
+        dest.write(src.to_i)
       else
         # Error case: dest needs to be a Register or memory location
+      end
+    end
+
+    instruction :add, opcode: 0x03, args: 2, argsize: 2 do |src, dest|
+      if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
+        dest.write(dest.read + src.read)
+      elsif src.is_a? Fixnum and dest.is_a? MemoryLocation
+        dest.write(dest.read + src.to_i)
+      else
+        # Error case: dest needs to be a Register
       end
     end
   end
