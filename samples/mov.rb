@@ -5,12 +5,13 @@ processor = Assam::Processor.new
 
 # Create a program for the processor.
 prog = Assam::Program.new(processor) do
-  mov 3, @eax
-  mov 5, @ebx
+  mov 3, @ebx
+  mov 5, @ecx
 
-  add 8, @eax
+  add 8, @ebx
 
-  stop
+  mov 1, @eax
+  int 0x80
 end
 
 # Assemble the program into machine code that the processor can understand.

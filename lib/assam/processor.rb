@@ -10,6 +10,18 @@ module Assam
     MEM_MUL    = 0x70 # Multiplication symbol. Used with EXPRESSION.
     MEM_SUB    = 0x80 # Subtraction symbol. Used with EXPRESSION.
 
+    def initialize
+      # 0x80 is the signal the Linux kernel uses for system calls. Just
+      # emulating it slightly here in order to implement the ability to exit a
+      # process.
+      handler_for 0x80 do
+        case registers[:eax].value
+        when 0x01
+          registers[:eflags].stop = true
+        end
+      end
+    end
+
     # The instruction set object to use for this processor.
     def instruction_set
       @instruction_set ||= Assam::InstructionSet::V1
@@ -51,6 +63,16 @@ module Assam
       @stack_start ||= ram.size
     end
 
+    # A hash of interrupt handlers keyed by the interrupt signal number.
+    def interrupt_handler
+      @interrupt_handler ||= {}
+    end
+
+    # Define an interrupt handler for a specific signal.
+    def handler_for signal, &block
+      interrupt_handler[signal] = block
+    end
+
     # The registers hash! I've gone for an x86 inspired register set. It's not
     # complete but it doesn't need to be yet, and it's easy enough to extend
     # should one be so inclined.
@@ -66,6 +88,7 @@ module Assam
         edi: Register.new(:edi, 0x07, 0x1c, 4, register_memory),
 
         pc: Register.new(:pc, 0x08, 0x20, address_size, register_memory),
+        eflags: Eflags.new,
       }
     end
 
@@ -116,6 +139,12 @@ module Assam
       registers[:esp].value = stack_start
 
       loop do
+        # If the stop flag is set, unset it and break out of the program loop.
+        if registers[:eflags].stop
+          registers[:eflags].stop = false
+          break
+        end
+
         opcode      = ram_read
         instruction = instruction_set.instruction_codes[opcode]
 
@@ -123,10 +152,6 @@ module Assam
           raise "Invalid opcode: 0x#{opcode.to_s(16)}. " +
             "PC: 0x#{registers[:pc].value.to_s(16)}"
         end
-
-        # TODO: Hacky. Should eventually be replaced by an interrupt system
-        # similar to how the Linux kernel works.
-        break if instruction[:name] == :stop
 
         arguments = []
         instruction[:args].times do

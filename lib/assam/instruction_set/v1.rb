@@ -24,10 +24,6 @@ module Assam
         # NOP - Do nothing.
       end
 
-      instruction :stop, opcode: 0x01, args: 0 do
-        # The logic of this will be handled externally for now.
-      end
-
       instruction :mov, opcode: 0x02, args: 2, argsize: 2 do |src, dest|
         if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
           dest.write(src.read)
@@ -67,6 +63,19 @@ module Assam
         registers[:esp].value += 2
 
         dest.write(value)
+      end
+
+      instruction :int, opcode: 0x06, args: 1, argsize: 1 do |signal|
+        handler = interrupt_handler[signal]
+
+        # If a handler exist for this interrupt, execute it. If not, no worries.
+        # Just silently pass over it.
+        if handler
+          instance_eval(&handler)
+        else
+          Assam.logger.debug "Interrupt 0x#{signal.to_s(16)} fired but no " +
+            "handler exists for that signal. Skipping."
+        end
       end
     end
   end
