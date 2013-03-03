@@ -25,26 +25,42 @@ module Assam
       end
 
       instruction :mov, opcode: 0x02, args: 2, argsize: 2 do |src, dest|
+        opts = { signed: true }
+
         if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
-          dest.write(src.read)
+          dest.write(src.read(opts), opts)
         elsif src.is_a? Fixnum and dest.is_a? MemoryLocation
-          dest.write(src.to_i)
+          dest.write(src.to_i, opts)
         else
           # Error case: dest needs to be a Register or memory location
         end
       end
 
       instruction :add, opcode: 0x03, args: 2, argsize: 2 do |src, dest|
+        opts = { signed: true }
+
         if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
-          dest.write(dest.read + src.read)
+          dest.write(dest.read(opts) + src.read(opts), opts)
         elsif src.is_a? Fixnum and dest.is_a? MemoryLocation
-          dest.write(dest.read + src.to_i)
+          dest.write(dest.read(opts) + src.to_i, opts)
         else
           # Error case: dest needs to be a Register
         end
       end
 
-      instruction :push, opcode: 0x04, args: 1, argsize: 2 do |src|
+      instruction :sub, opcode: 0x04, args: 2, argsize: 2 do |src, dest|
+        opts = { signed: true }
+
+        if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
+          dest.write(dest.read(opts) - src.read(opts), opts)
+        elsif src.is_a? Fixnum and dest.is_a? MemoryLocation
+          dest.write(dest.read(opts) - src.to_i, opts)
+        else
+          # Error case: dest needs to be a Register
+        end
+      end
+
+      instruction :push, opcode: 0x05, args: 1, argsize: 2 do |src|
         # Can push a value or memory location to stack. Handle these and store th
         # actual value to be stored inside value.
         value = src.read if src.is_a? MemoryLocation
@@ -56,7 +72,7 @@ module Assam
         ram[registers[:esp].value, 2] = value
       end
 
-      instruction :pop, opcode: 0x05, args: 1, argsize: 2 do |dest|
+      instruction :pop, opcode: 0x06, args: 1, argsize: 2 do |dest|
         raise "Invalid destination for :pop." unless dest.is_a? MemoryLocation
 
         value = ram[registers[:esp].value, 2]
@@ -65,17 +81,38 @@ module Assam
         dest.write(value)
       end
 
-      instruction :int, opcode: 0x06, args: 1, argsize: 1 do |signal|
-        handler = interrupt_handler[signal]
+      instruction :int, opcode: 0x07, args: 1, argsize: 1 do |signal|
+        # If the interrupt flags is set, continue.
+        if registers[:eflags].if
+          handler = interrupt_handler[signal]
 
-        # If a handler exist for this interrupt, execute it. If not, no worries.
-        # Just silently pass over it.
-        if handler
-          instance_eval(&handler)
-        else
-          Assam.logger.debug "Interrupt 0x#{signal.to_s(16)} fired but no " +
-            "handler exists for that signal. Skipping."
+          # If a handler exist for this interrupt, execute it. If not, no worries.
+          # Just silently pass over it.
+          if handler
+            instance_eval(&handler)
+          else
+            Assam.logger.debug "Interrupt 0x#{signal.to_s(16)} fired but no " +
+              "handler exists for that signal. Skipping."
+          end
         end
+      end
+
+      # Documentation for test and how it sets flags can be found here:
+      #
+      #   http://en.wikibooks.org/wiki/X86_Assembly/Control_Flow
+      instruction :test, opcode: 0x08, args: 2, argsize: 2 do |left, right|
+        left  = left.is_a? MemoryLocation ? left.value : left.to_i
+        right = right.is_a? MemoryLocation ? right.value : right.to_i
+
+        test = left & right
+        test
+      end
+
+      # Documentation for cmp and how it sets flags can be found here:
+      #
+      #   http://en.wikibooks.org/wiki/X86_Assembly/Control_Flow
+      instruction :cmp, opcode: 0x09, args: 2, argsize: 2 do |left, right|
+
       end
     end
   end

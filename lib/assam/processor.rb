@@ -78,16 +78,15 @@ module Assam
     # should one be so inclined.
     def registers
       @registers ||= {
-        eax: Register.new(:eax, 0x00, 0x00, 4, register_memory),
-        ebx: Register.new(:ebx, 0x01, 0x04, 4, register_memory),
-        ecx: Register.new(:ecx, 0x02, 0x08, 4, register_memory),
-        edx: Register.new(:edx, 0x03, 0x0c, 4, register_memory),
-        esp: Register.new(:esp, 0x04, 0x10, 4, register_memory),
-        ebp: Register.new(:ebp, 0x05, 0x14, 4, register_memory),
-        esi: Register.new(:esi, 0x06, 0x18, 4, register_memory),
-        edi: Register.new(:edi, 0x07, 0x1c, 4, register_memory),
-
-        pc: Register.new(:pc, 0x08, 0x20, address_size, register_memory),
+        eax:    Register.new(:eax, 0x00, 0x00, 4, register_memory),
+        ebx:    Register.new(:ebx, 0x01, 0x04, 4, register_memory),
+        ecx:    Register.new(:ecx, 0x02, 0x08, 4, register_memory),
+        edx:    Register.new(:edx, 0x03, 0x0c, 4, register_memory),
+        esp:    Register.new(:esp, 0x04, 0x10, 4, register_memory),
+        ebp:    Register.new(:ebp, 0x05, 0x14, 4, register_memory),
+        esi:    Register.new(:esi, 0x06, 0x18, 4, register_memory),
+        edi:    Register.new(:edi, 0x07, 0x1c, 4, register_memory),
+        eip:    Register.new(:eip, 0x08, 0x20, 4, register_memory),
         eflags: Eflags.new,
       }
     end
@@ -108,10 +107,10 @@ module Assam
     #
     # Used internally for running programs, be _very_ careful using it manually.
     def ram_read size = 1
-      pc   = registers[:pc].value
+      pc   = registers[:eip].value
       read = ram[pc, size]
 
-      registers[:pc].value += size
+      registers[:eip].value += size
 
       read
     end
@@ -133,10 +132,14 @@ module Assam
     # Hey, nobody said processors could read minds.
     def run
       # Set the program counter to the point in memory where code begins.
-      registers[:pc].value = code_start
+      registers[:eip].value = code_start
 
       # Set the stack pointer to the point in memory where the stack starts.
       registers[:esp].value = stack_start
+
+      # Set the interrupt flag to true by default so that the processor handles
+      # interrupts as normal.
+      registers[:eflags].if = true
 
       loop do
         # If the stop flag is set, unset it and break out of the program loop.
@@ -150,7 +153,7 @@ module Assam
 
         if instruction.nil?
           raise "Invalid opcode: 0x#{opcode.to_s(16)}. " +
-            "PC: 0x#{registers[:pc].value.to_s(16)}"
+            "PC: 0x#{registers[:eip].value.to_s(16)}"
         end
 
         arguments = []
@@ -219,7 +222,7 @@ module Assam
         end
       when EXPRESSION
         size       = ram_read
-        pc         = MemoryLocation.from(registers[:pc])
+        pc         = MemoryLocation.from(registers[:eip])
         initial_pc = pc.read
         expression = []
 

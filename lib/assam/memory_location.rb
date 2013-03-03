@@ -12,12 +12,12 @@ module Assam
       @size     = size
     end
 
-    def read
-      @memory[@location, @size]
+    def read opts = {}
+      @memory.load(@location, @size, opts)
     end
 
-    def write new_value
-      @memory[@location, @size] = new_value
+    def write new_value, opts = {}
+      @memory.store(@location, @size, new_value, opts)
     end
 
     def to_s

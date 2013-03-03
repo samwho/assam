@@ -1,28 +1,30 @@
 module Assam
   class Utils
-    def self.pack_for size
+    SIGNED = true
+
+    def self.pack_for size, opts = {}
       case size
       when 1
-        "C"
+        opts[:signed] ? "c" : "C"
       when 2
-        "S>"
+        opts[:signed] ? "s>" : "S>"
       when 4
-        "L>"
+        opts[:signed] ? "l>" : "L>"
       when 8
-        "Q>"
+        opts[:signed] ? "q>" : "Q>"
       end
     end
 
-    def self.unpack_for size
+    def self.unpack_for size, opts = {}
       case size
       when 1
-        "C"
+        opts[:signed] ? "c" : "C"
       when 2
-        "S>"
+        opts[:signed] ? "s>" : "S>"
       when 4
-        "L>"
+        opts[:signed] ? "l>" : "L>"
       when 8
-        "Q>"
+        opts[:signed] ? "q>" : "Q>"
       end
     end
 

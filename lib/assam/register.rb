@@ -10,12 +10,12 @@ module Assam
       @memory   = memory
     end
 
-    def value= new_value
-      @memory[@location, @size] = new_value
+    def value= new_value, opts = {}
+      @memory.store(@location, @size, new_value, opts)
     end
 
-    def value
-      @memory[@location, @size]
+    def value opts = {}
+      @memory.load(@location, @size, opts)
     end
 
     def to_s

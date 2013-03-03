@@ -135,4 +135,19 @@ describe Assam::Processor do
     specify("@ecx == 4") { ecx.value.should == 4 }
     specify("@edx == 12") { edx.value.should == 12 }
   end
+
+  describe "test signed operation" do
+    let :program do
+      Assam::Program.new(processor) do
+        mov 4, @ebx
+        sub 12, @ebx
+
+
+        mov 1, @eax
+        int 0x80
+      end
+    end
+
+    specify("@ebx == -8") { ebx.value(signed: true).should == -8 }
+  end
 end

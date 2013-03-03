@@ -27,17 +27,17 @@ module Assam
       @size = size
     end
 
-    def load position, size
-      @memory[position, size].unpack(Utils.unpack_for(size)).first
+    def load position, size, opts = {}
+      @memory[position, size].unpack(Utils.unpack_for(size, opts)).first
     end
 
-    def store position, size, value
+    def store position, size, value, opts = {}
       binary_value = nil
 
       if value.is_a? String
         binary_value = value.force_encoding(Encoding::BINARY)
       else
-        binary_value = [value].pack(Utils.pack_for(size))
+        binary_value = [value].pack(Utils.pack_for(size, opts))
       end
 
       @memory[position, size] = binary_value
