@@ -13,6 +13,11 @@ great words of George Mallory:
 
     "[I did it] because it's there."
 
+### Why the name Assam?
+
+I like tea. My name is Sam. This is sort of an assembler project. The three seem
+to tie in very nicely.
+
 ## Rationale
 
 This wasn't entirely meant as a learning exercise. I've recently been very
