@@ -6,6 +6,10 @@ module Assam
     def self.instruction name, opts = {}, &block
       instruction = opts.merge(block: block, name: name)
 
+      if INSTRUCTIONS[instruction[:name]] or INSTRUCTION_CODES[instruction[:opcode]]
+        raise "Conflicting instruction: #{instruction}"
+      end
+
       INSTRUCTIONS[instruction[:name]]        = instruction
       INSTRUCTION_CODES[instruction[:opcode]] = instruction
     end

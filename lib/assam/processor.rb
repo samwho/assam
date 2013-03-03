@@ -131,7 +131,7 @@ module Assam
         Assam.logger.debug "Running: #{instruction[:name]}, " +
           "args: #{arguments.inspect}"
 
-        instruction[:block].call(*arguments)
+        instance_exec(*arguments, &instruction[:block])
       end
 
       self
