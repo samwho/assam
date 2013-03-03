@@ -110,4 +110,27 @@ describe Assam::Processor do
     specify("@ecx == 8") { ecx.value.should == 8 }
     specify("@eax == 0x8000") { eax.value.should == 0x8000 }
   end
+
+  describe "stack push and pop" do
+    let :program do
+      Assam::Program.new(processor) do
+        push 12
+        push 4
+        push 6
+        push 14
+
+        pop @eax
+        pop @ebx
+        pop @ecx
+        pop @edx
+
+        stop
+      end
+    end
+
+    specify("@eax == 14") { eax.value.should == 14 }
+    specify("@ebx == 6") { ebx.value.should == 6 }
+    specify("@ecx == 4") { ecx.value.should == 4 }
+    specify("@edx == 12") { edx.value.should == 12 }
+  end
 end

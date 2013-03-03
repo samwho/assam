@@ -43,7 +43,7 @@ module Assam
     # The point in memory where the stack starts. Typically this is always at
     # the top and grows down.
     def stack_start
-      @stack_start ||= ram.size - 1
+      @stack_start ||= ram.size
     end
 
     # The registers hash! I've gone for an x86 inspired register set. It's not

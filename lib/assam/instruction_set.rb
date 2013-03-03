@@ -41,5 +41,26 @@ module Assam
         # Error case: dest needs to be a Register
       end
     end
+
+    instruction :push, opcode: 0x04, args: 1, argsize: 2 do |src|
+      # Can push a value or memory location to stack. Handle these and store th
+      # actual value to be stored inside value.
+      value = src.read if src.is_a? MemoryLocation
+      value = src.to_i if src.is_a? Fixnum
+
+      # Push to the stack by setting the memory location pointed at by @esp and
+      # then decrementing the stack pointer.
+      registers[:esp].value -= 2
+      ram[registers[:esp].value, 2] = value
+    end
+
+    instruction :pop, opcode: 0x05, args: 1, argsize: 2 do |dest|
+      raise "Invalid destination for :pop." unless dest.is_a? MemoryLocation
+
+      value = ram[registers[:esp].value, 2]
+      registers[:esp].value += 2
+
+      dest.write(value)
+    end
   end
 end
