@@ -12,7 +12,7 @@ require 'assam/register'
 require 'assam/memory'
 
 require_all 'assam'
-require_all 'assam/isa'
+require_all 'assam/instruction_set'
 
 module Assam
   def self.logger

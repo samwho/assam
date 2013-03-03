@@ -10,6 +10,11 @@ module Assam
     MEM_MUL    = 0x70 # Multiplication symbol. Used with EXPRESSION.
     MEM_SUB    = 0x80 # Subtraction symbol. Used with EXPRESSION.
 
+    # The instruction set object to use for this processor.
+    def instruction_set
+      @instruction_set ||= Assam::InstructionSet::V1
+    end
+
     # The Assam::Memory object that represents a processor's RAM.
     def ram
       @ram ||= Memory.new(2 ** (8 * address_size), "RAM")
@@ -112,7 +117,7 @@ module Assam
 
       loop do
         opcode      = ram_read
-        instruction = InstructionSet::INSTRUCTION_CODES[opcode]
+        instruction = instruction_set.instruction_codes[opcode]
 
         if instruction.nil?
           raise "Invalid opcode: 0x#{opcode.to_s(16)}. " +

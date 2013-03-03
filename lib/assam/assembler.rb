@@ -15,7 +15,7 @@ module Assam
           # instruction will be located.
           @labels[args.first] = @address
         else
-          instruction = InstructionSet::INSTRUCTIONS[name]
+          instruction = @processor.instruction_set.instructions[name]
 
           if instruction.nil?
             raise "No such instruction: #{name}"
