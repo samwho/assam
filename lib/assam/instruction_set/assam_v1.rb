@@ -1,6 +1,6 @@
 module Assam
   module InstructionSet
-    class V1
+    class AssamV1
       def self.instructions
         @@instructions ||= {}
       end
@@ -12,7 +12,7 @@ module Assam
       def self.instruction name, opts = {}, &block
         instruction = opts.merge(block: block, name: name)
 
-        if instructions[instruction[:name]] or instruction_codes[instruction[:opcode]]
+        if instructions[name] or instruction_codes[instruction[:opcode]]
           raise "Conflicting instruction: #{instruction}"
         end
 

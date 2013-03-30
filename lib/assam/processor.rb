@@ -24,7 +24,7 @@ module Assam
 
     # The instruction set object to use for this processor.
     def instruction_set
-      @instruction_set ||= Assam::InstructionSet::V1
+      @instruction_set ||= Assam::InstructionSet::AssamV1
     end
 
     # The Assam::Memory object that represents a processor's RAM.
@@ -118,9 +118,6 @@ module Assam
     # Loads a program binary string into RAM at a location specified by
     # #code_start, which is where the program counter will default to.
     def load program_binary
-      Assam.logger.debug "Loading program into RAM: " +
-        "#{Utils.binary_str_to_bytes(program_binary)}"
-
       ram[code_start, program_binary.length] = program_binary
       self
     end

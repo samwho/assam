@@ -1,4 +1,4 @@
-require File.join('.', File.dirname(__FILE__), '..', 'lib', 'assam')
+require_relative '../../lib/assam'
 
 # Initialise a processor object.
 processor = Assam::Processor.new

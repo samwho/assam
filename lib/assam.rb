@@ -7,12 +7,15 @@ def require_all path
 end
 
 require 'logger'
+require 'bundler'
+Bundler.require
 
 require 'assam/register'
 require 'assam/memory'
 
 require_all 'assam'
 require_all 'assam/instruction_set'
+require_all 'assam/elf'
 
 module Assam
   def self.logger
