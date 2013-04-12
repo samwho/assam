@@ -10,7 +10,7 @@ module Assam
       end
 
       def self.instruction name, opts = {}, &block
-        instruction = opts.merge(block: block, name: name)
+        instruction = opts.merge(block: block, name: name, args: block.arity)
 
         if instructions[name] or instruction_codes[instruction[:opcode]]
           raise "Conflicting instruction: #{instruction}"
@@ -20,11 +20,11 @@ module Assam
         instruction_codes[instruction[:opcode]] = instruction
       end
 
-      instruction :nop, opcode: 0x00, args: 0 do
+      instruction :nop, opcode: 0x00 do
         # NOP - Do nothing.
       end
 
-      instruction :mov, opcode: 0x02, args: 2, argsize: 2 do |src, dest|
+      instruction :mov, opcode: 0x02, argsize: 2 do |src, dest|
         opts = { signed: true }
 
         if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
@@ -36,7 +36,7 @@ module Assam
         end
       end
 
-      instruction :add, opcode: 0x03, args: 2, argsize: 2 do |src, dest|
+      instruction :add, opcode: 0x03, argsize: 2 do |src, dest|
         opts = { signed: true }
 
         if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
@@ -48,7 +48,7 @@ module Assam
         end
       end
 
-      instruction :sub, opcode: 0x04, args: 2, argsize: 2 do |src, dest|
+      instruction :sub, opcode: 0x04, argsize: 2 do |src, dest|
         opts = { signed: true }
 
         if src.is_a? MemoryLocation and dest.is_a? MemoryLocation
@@ -60,7 +60,7 @@ module Assam
         end
       end
 
-      instruction :push, opcode: 0x05, args: 1, argsize: 2 do |src|
+      instruction :push, opcode: 0x05, argsize: 2 do |src|
         # Can push a value or memory location to stack. Handle these and store th
         # actual value to be stored inside value.
         value = src.read if src.is_a? MemoryLocation
@@ -72,7 +72,7 @@ module Assam
         ram[registers[:esp].value, 2] = value
       end
 
-      instruction :pop, opcode: 0x06, args: 1, argsize: 2 do |dest|
+      instruction :pop, opcode: 0x06, argsize: 2 do |dest|
         raise "Invalid destination for :pop." unless dest.is_a? MemoryLocation
 
         value = ram[registers[:esp].value, 2]
@@ -81,7 +81,7 @@ module Assam
         dest.write(value)
       end
 
-      instruction :int, opcode: 0x07, args: 1, argsize: 1 do |signal|
+      instruction :int, opcode: 0x07, argsize: 1 do |signal|
         # If the interrupt flags is set, continue.
         if registers[:eflags].if
           handler = interrupt_handler[signal]
@@ -100,7 +100,7 @@ module Assam
       # Documentation for test and how it sets flags can be found here:
       #
       #   http://en.wikibooks.org/wiki/X86_Assembly/Control_Flow
-      instruction :test, opcode: 0x08, args: 2, argsize: 2 do |left, right|
+      instruction :test, opcode: 0x08, argsize: 2 do |left, right|
         left  = left.is_a? MemoryLocation ? left.value : left.to_i
         right = right.is_a? MemoryLocation ? right.value : right.to_i
 
